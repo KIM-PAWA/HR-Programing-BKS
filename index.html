@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏢 ระบบข้อมูลพนักงาน BKS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream:     #FDF8F3;
+      --mint:      #D6EFE3;
+      --mint-mid:  #A8D8C0;
+      --mint-dark: #5BAF8A;
+      --sky:       #D4EBF8;
+      --sky-mid:   #93C9E8;
+      --blush:     #FAE0E4;
+      --blush-mid: #F5B8C4;
+      --butter:    #FFF3C4;
+      --text-dark: #2E3A34;
+      --text-mid:  #5A6E65;
+      --text-soft: #97ADA4;
+      --white:     #FFFFFF;
+      --shadow-md: 0 6px 28px rgba(91,175,138,0.14);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px 40px;
+    }
+    .app { width: 100%; max-width: 480px; }
+    .brand { text-align: center; margin-bottom: 28px; }
+    .brand-icon { font-size: 2.4rem; line-height: 1; }
+    .brand-name { font-size: 1.05rem; font-weight: 600; color: var(--mint-dark); margin-top: 4px; }
+    .brand-sub  { font-size: 0.8rem; color: var(--text-soft); margin-top: 2px; }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 28px 24px;
+      animation: fadeUp .35s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .loading-screen { text-align: center; padding: 40px 20px; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--mint);
+      border-top-color: var(--mint-dark);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.9rem; color: var(--text-soft); }
+    .error-screen { text-align: center; padding: 30px 20px; }
+    .error-icon  { font-size: 2.5rem; margin-bottom: 12px; }
+    .error-title { font-size: 1rem; font-weight: 600; color: #c0464f; margin-bottom: 6px; }
+    .error-desc  { font-size: 0.82rem; color: var(--text-soft); line-height: 1.6; }
+    .btn-retry {
+      margin-top: 16px; padding: 10px 24px;
+      background: var(--mint-dark); color: white;
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Sarabun', sans-serif; font-size: 0.9rem; cursor: pointer;
+    }
+    .login-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .login-sub   { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 24px; }
+    .field { margin-bottom: 16px; }
+    .field label { display:block; font-size:0.82rem; font-weight:600; color:var(--text-mid); margin-bottom:6px; }
+    .field input {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid #E2EDE9; border-radius: var(--radius-sm);
+      font-family: 'Sarabun', sans-serif; font-size: 0.95rem;
+      color: var(--text-dark); background: var(--cream); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus {
+      border-color: var(--mint-dark);
+      box-shadow: 0 0 0 3px rgba(91,175,138,.15);
+      background: var(--white);
+    }
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: var(--mint-dark); color: var(--white);
+      font-family: 'Sarabun', sans-serif; font-size: 1rem; font-weight: 600;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer; margin-top: 8px; transition: background .2s, transform .1s;
+    }
+    .btn-primary:active { transform: scale(.98); }
+    .btn-primary:hover  { background: #4a9e7a; }
+    .login-error {
+      background: var(--blush); color: #c0464f;
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 0.85rem; margin-top: 14px; display: none;
+    }
+    .login-error.show { display: block; }
+    .profile-strip {
+      display: flex; align-items: center; gap: 14px;
+      background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 100%);
+      border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px;
+    }
+    .avatar {
+      width: 52px; height: 52px; background: var(--mint-dark); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;
+    }
+    .emp-name     { font-size: 1.1rem; font-weight: 700; }
+    .emp-id       { font-size: 0.78rem; color: var(--text-mid); margin-top: 2px; }
+    .emp-position { font-size: 0.78rem; color: var(--mint-dark); font-weight: 600; margin-top: 3px; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; color: var(--text-soft);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 10px; margin-top: 20px;
+    }
+    .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .balance-card { border-radius: var(--radius-md); padding: 16px 14px; position: relative; overflow: hidden; }
+    .balance-card::before {
+      content:''; position:absolute; top:-18px; right:-18px;
+      width:70px; height:70px; border-radius:50%; opacity:.18;
+    }
+    .balance-card.personal { background: var(--butter); }
+    .balance-card.personal::before { background: #F5C842; }
+    .balance-card.sick     { background: var(--blush); }
+    .balance-card.sick::before     { background: var(--blush-mid); }
+    .balance-card.other    { background: var(--sky); }
+    .balance-card.other::before    { background: var(--sky-mid); }
+    .balance-icon  { font-size: 1.4rem; margin-bottom: 6px; }
+    .balance-type  { font-size: 0.72rem; font-weight: 600; color: var(--text-mid); }
+    .balance-days  { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+    .balance-days span { font-size: 0.85rem; font-weight: 400; color: var(--text-soft); }
+    .balance-hours { font-size: 0.75rem; color: var(--text-soft); margin-top: 2px; }
+    .history-wrap {
+      background: var(--cream); border-radius: var(--radius-md);
+      overflow: hidden; border: 1.5px solid #E8F2EE;
+    }
+    .history-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 16px; border-bottom: 1px solid #EEF6F2;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .dot-personal { background: #F5C842; }
+    .dot-sick     { background: var(--blush-mid); }
+    .dot-other    { background: var(--sky-mid); }
+    .history-info { flex: 1; }
+    .history-date  { font-size: 0.82rem; font-weight: 600; }
+    .history-note  { font-size: 0.75rem; color: var(--text-soft); margin-top: 1px; }
+    .history-badge { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .badge-personal { background: var(--butter); color: #9A7E10; }
+    .badge-sick     { background: var(--blush);  color: #b03a47; }
+    .badge-other    { background: var(--sky);    color: #2d7aac; }
+    .empty-history  { text-align:center; padding:28px 20px; color:var(--text-soft); font-size:0.85rem; }
+    .empty-icon     { font-size:2rem; margin-bottom:8px; }
+    .note-box {
+      background: var(--mint); border-radius: var(--radius-sm);
+      padding: 10px 14px; font-size: 0.78rem; color: var(--text-mid);
+      margin-top: 14px; line-height: 1.6;
+    }
+    .sync-time { text-align: right; font-size: 0.72rem; color: var(--text-soft); margin-top: 8px; }
+    .btn-logout {
+      width: 100%; padding: 12px; background: transparent; color: var(--text-soft);
+      font-family: 'Sarabun', sans-serif; font-size: 0.88rem;
+      border: 1.5px solid #DDE9E4; border-radius: var(--radius-sm);
+      cursor: pointer; margin-top: 22px; transition: all .2s;
+    }
+    .btn-logout:hover { background: var(--blush); color: #b03a47; border-color: var(--blush-mid); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <div class="brand-icon">🏢</div>
+    <div class="brand-name">Ban-Khaosok Para Rubber</div>
+    <div class="brand-sub">ระบบข้อมูลพนักงาน</div>
+  </div>
+
+  <div class="card" id="mainCard">
+    <div id="stateLoading" class="loading-screen">
+      <div class="spinner"></div>
+      <div class="loading-text">กำลังโหลดข้อมูล...</div>
+    </div>
+    <div id="stateError" class="error-screen" style="display:none">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">ไม่สามารถโหลดข้อมูลได้</div>
+      <div class="error-desc" id="errorDesc">กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</div>
+      <button class="btn-retry" onclick="loadData()">🔄 ลองใหม่</button>
+    </div>
+    <div id="stateLogin" style="display:none">
+      <div class="login-title">ยินดีต้อนรับ 👋</div>
+      <div class="login-sub">กรุณาใส่ข้อมูลเพื่อเข้าสู่ระบบ</div>
+      <div class="field">
+        <label for="inputName">ชื่อจริง (ไม่ต้องมีคำนำหน้า)</label>
+        <input id="inputName" type="text" placeholder="เช่น กวินทร์" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="inputId">รหัสพนักงาน</label>
+        <input id="inputId" type="text" placeholder="กรอกรหัสพนักงาน" autocomplete="off" />
+      </div>
+      <button class="btn-primary" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <div class="login-error" id="loginError">❌ ไม่พบข้อมูลพนักงาน กรุณาตรวจสอบชื่อและรหัสอีกครั้ง</div>
+    </div>
+    <div id="dashboard" style="display:none">
+
+      <!-- Tab Navigation -->
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <div id="tabProfile" onclick="switchEmpTab('profile')"
+          style="flex:1; text-align:center; padding:10px; border-radius:20px; font-size:0.88rem; font-weight:600; cursor:pointer; background:var(--mint-dark); color:white; border:1.5px solid var(--mint-dark);">
+          👤 ข้อมูลส่วนตัว
+        </div>
+        <div id="tabLeave" onclick="switchEmpTab('leave')"
+          style="flex:1; text-align:center; padding:10px; border-radius:20px; font-size:0.88rem; font-weight:600; cursor:pointer; background:var(--cream); color:var(--text-mid); border:1.5px solid #E8F2EE;">
+          📋 สรุปวันลา
+        </div>
+        <div id="tabOT" onclick="switchEmpTab('ot')"
+          style="flex:1; text-align:center; padding:10px; border-radius:20px; font-size:0.88rem; font-weight:600; cursor:pointer; background:var(--cream); color:var(--text-mid); border:1.5px solid #E8F2EE;">
+          ⏰ สรุป OT
+        </div>
+      </div>
+
+      <!-- Tab: ข้อมูลส่วนตัว -->
+      <div id="panelProfile">
+        <div class="profile-strip">
+          <div class="avatar">👤</div>
+          <div class="profile-info">
+            <div class="emp-name"     id="dName"></div>
+            <div class="emp-id"       id="dId"></div>
+            <div class="emp-position" id="dPosition"></div>
+          </div>
+        </div>
+        <div class="balance-grid" style="margin-top:4px;">
+          <div class="balance-card" style="background:var(--sky);">
+            <div class="balance-icon">🏷️</div>
+            <div class="balance-type">ประเภทพนักงาน</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dEmpType">—</div>
+          </div>
+          <div class="balance-card" style="background:var(--mint);">
+            <div class="balance-icon">🏢</div>
+            <div class="balance-type">แผนก</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dDept">—</div>
+          </div>
+          <div class="balance-card" style="background:var(--butter);">
+            <div class="balance-icon">🎓</div>
+            <div class="balance-type">วุฒิการศึกษา</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dEducation">—</div>
+          </div>
+          <div class="balance-card" style="background:#EDE4F5;">
+            <div class="balance-icon">📅</div>
+            <div class="balance-type">วันเข้างาน</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dStartDate">—</div>
+          </div>
+          <div class="balance-card" style="background:var(--blush);">
+            <div class="balance-icon">🎂</div>
+            <div class="balance-type">วันเกิด</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dBirthDate">—</div>
+          </div>
+          <div class="balance-card" style="background:var(--mint);">
+            <div class="balance-icon">⏳</div>
+            <div class="balance-type">อายุงาน</div>
+            <div class="balance-days" style="font-size:1.1rem;" id="dWorkAge">—</div>
+          </div>
+        </div>
+        <div class="sync-time" id="syncTime"></div>
+      </div>
+
+      <!-- Tab: วันลา -->
+      <div id="panelLeave" style="display:none">
+      <div class="section-label">วันลาสะสม (ข้อมูลล่าสุด)</div>
+      <div class="balance-grid">
+        <div class="balance-card personal">
+          <div class="balance-icon">📋</div>
+          <div class="balance-type">ลากิจ</div>
+          <div class="balance-days" id="dPersonalDays">— <span>วัน</span></div>
+          <div class="balance-hours" id="dPersonalHours"></div>
+        </div>
+        <div class="balance-card sick">
+          <div class="balance-icon">🏥</div>
+          <div class="balance-type">ลาป่วย</div>
+          <div class="balance-days" id="dSickDays">— <span>วัน</span></div>
+          <div class="balance-hours" id="dSickHours"></div>
+        </div>
+        <div class="balance-card other">
+          <div class="balance-icon">🌴</div>
+          <div class="balance-type">ลาอื่นๆ</div>
+          <div class="balance-days" id="dOtherDays">— <span>วัน</span></div>
+          <div class="balance-hours" id="dOtherHours"></div>
+        </div>
+        <div class="balance-card" style="background:#EDE4F5;">
+          <div class="balance-icon">📅</div>
+          <div class="balance-type">ลากิจคงเหลือ (สิทธิ์ 12 วัน)</div>
+          <div class="balance-days" id="dQuotaRemain">— <span>วัน</span></div>
+          <div class="balance-hours" id="dQuotaUsed"></div>
+        </div>
+      </div>
+      <div class="note-box">💡 วันลาสะสมคำนวณจากข้อมูลล่าสุดในระบบ</div>
+      <div class="sync-time" id="syncTime"></div>
+      <div class="section-label">ประวัติการลา</div>
+      <div class="history-wrap" id="historyList"></div>
+      </div><!-- end panelLeave -->
+
+      <!-- Tab: OT -->
+      <div id="panelOT" style="display:none">
+        <div class="empty-history" style="padding:40px 20px;">
+          <div class="empty-icon">⏰</div>
+          ยังไม่มีข้อมูล OT ในระบบ
+        </div>
+      </div>
+
+      <button class="btn-logout" onclick="doLogout()">🚪 ออกจากระบบ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxtbMRFNTLQNixVwCtIyxn73Xx1CQtkk04j72tT10v9QVGRnv5H1Vb5VFHXw-1ryl0/exec";
+
+let DB_EMPLOYEES = [];
+let DB_RECORDS   = [];
+
+function showState(state) {
+  ["stateLoading","stateError","stateLogin","dashboard"].forEach(id => {
+    document.getElementById(id).style.display = "none";
+  });
+  document.getElementById(state).style.display = "block";
+}
+
+function loadData() {
+  showState("stateLoading");
+  const cbName = "cb_" + Date.now();
+  const timer  = setTimeout(() => {
+    delete window[cbName];
+    document.getElementById("errorDesc").innerHTML = "หมดเวลาเชื่อมต่อ";
+    showState("stateError");
+  }, 15000);
+
+  window[cbName] = function(data) {
+    clearTimeout(timer);
+    delete window[cbName];
+    document.getElementById("jsonpScript") && document.getElementById("jsonpScript").remove();
+    if (!data || !data.employees || !data.records) {
+      document.getElementById("errorDesc").innerHTML = "ข้อมูลจาก Google Sheets ไม่ถูกต้อง";
+      showState("stateError");
+      return;
+    }
+    DB_EMPLOYEES = data.employees;
+    DB_RECORDS   = data.records;
+    showState("stateLogin");
+  };
+
+  const s = document.createElement("script");
+  s.id    = "jsonpScript";
+  s.src   = API_URL + "?callback=" + cbName;
+  s.onerror = function() {
+    clearTimeout(timer);
+    delete window[cbName];
+    document.getElementById("errorDesc").innerHTML = "เชื่อมต่อ Google Sheets ไม่ได้";
+    showState("stateError");
+  };
+  document.head.appendChild(s);
+}
+
+// แปลง leaveType ให้เป็นมาตรฐาน
+function normalizeType(t) {
+  t = (t || "").trim();
+  if (t.includes("ป่วย")) return "ลาป่วย";
+  if (t.includes("กิจ"))  return "ลากิจ";
+  return "ลาอื่นๆ";
+}
+
+const TYPE_CFG = {
+  "ลากิจ":   { dotClass:"dot-personal", badgeClass:"badge-personal" },
+  "ลาป่วย":  { dotClass:"dot-sick",     badgeClass:"badge-sick"     },
+  "ลาอื่นๆ": { dotClass:"dot-other",    badgeClass:"badge-other"    },
+};
+
+function toMins(days, hours, mins) {
+  return (days * 480) + (hours * 60) + (mins || 0);
+}
+
+// แปลงวันที่ string dd/mm/yyyy (พ.ศ.) → Date
+function parseThaiDate(s) {
+  if (!s) return null;
+  const parts = String(s).split("/");
+  if (parts.length !== 3) return null;
+  let y = parseInt(parts[2], 10);
+  if (y > 2400) y -= 543;
+  return new Date(y, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+}
+
+// หาปีบัญชีปัจจุบัน (1 เม.ย. - 31 มี.ค.)
+function getFiscalYear() {
+  const now   = new Date();
+  const month = now.getMonth() + 1; // 1-12
+  const year  = now.getFullYear();
+  // ถ้าเดือน 1-3 ปีบัญชียังเป็นปีก่อน
+  const fyStart = month >= 4 ? year : year - 1;
+  return {
+    start: new Date(fyStart, 3, 1),      // 1 เม.ย.
+    end:   new Date(fyStart + 1, 2, 31)  // 31 มี.ค. ปีถัดไป
+  };
+}
+
+// คำนวณวันลากิจที่ใช้ไปในปีบัญชีปัจจุบัน
+function calcPersonalLeaveUsedThisYear(empId) {
+  const fy = getFiscalYear();
+  let usedMins = 0;
+
+  for (const rec of DB_RECORDS) {
+    if (rec.empId !== empId) continue;
+    if (normalizeType(rec.leaveType) !== "ลากิจ") continue;
+
+    // ตรวจสอบว่าวันที่เริ่มลาอยู่ในปีบัญชีปัจจุบัน
+    const startDate = parseThaiDate(rec.startDate);
+    if (!startDate) continue;
+    if (startDate < fy.start || startDate > fy.end) continue;
+
+    // ใช้ thisDays/thisHours/thisMins (วันลาครั้งนี้) ไม่ใช่ days/hours/mins (สะสม)
+    usedMins += toMins(rec.thisDays || 0, rec.thisHours || 0, rec.thisMins || 0);
+  }
+
+  return {
+    days:  Math.floor(usedMins / 480),
+    hours: Math.floor((usedMins % 480) / 60),
+    mins:  usedMins % 60
+  };
+}
+
+function switchEmpTab(tab) {
+  const tabs   = ["profile", "leave", "ot"];
+  const labels = { profile:"tabProfile", leave:"tabLeave", ot:"tabOT" };
+  const panels = { profile:"panelProfile", leave:"panelLeave", ot:"panelOT" };
+
+  tabs.forEach(t => {
+    const isActive = t === tab;
+    document.getElementById(panels[t]).style.display  = isActive ? "block" : "none";
+    document.getElementById(labels[t]).style.background  = isActive ? "var(--mint-dark)" : "var(--cream)";
+    document.getElementById(labels[t]).style.color       = isActive ? "white" : "var(--text-mid)";
+    document.getElementById(labels[t]).style.borderColor = isActive ? "var(--mint-dark)" : "#E8F2EE";
+  });
+}
+
+function doLogin() {
+  const nameInput = document.getElementById("inputName").value.trim();
+  const idInput   = document.getElementById("inputId").value.trim();
+  const emp = DB_EMPLOYEES.find(e =>
+    e.name.trim() === nameInput &&
+    e.id.toLowerCase() === idInput.toLowerCase()
+  );
+  const err = document.getElementById("loginError");
+  if (!emp) { err.classList.add("show"); return; }
+  err.classList.remove("show");
+  renderDashboard(emp);
+}
+
+function computeBalance(empId) {
+  const balance = {};
+  const history = [];
+
+  for (const rec of DB_RECORDS) {
+    if (rec.empId !== empId) continue;
+    const t     = normalizeType(rec.leaveType);
+    const total = toMins(rec.days || 0, rec.hours || 0, rec.mins || 0);
+    const prev  = balance[t] ? toMins(balance[t].days, balance[t].hours, balance[t].mins) : -1;
+    if (total > prev) {
+      balance[t] = { days: rec.days || 0, hours: rec.hours || 0, mins: rec.mins || 0 };
+    }
+    history.push({ ...rec, leaveTypeNorm: t });
+  }
+
+  history.sort((a, b) => {
+    const parse = s => parseThaiDate(s) || new Date(0);
+    return parse(b.startDate || b.date) - parse(a.startDate || a.date);
+  });
+
+  return { balance, history };
+}
+
+function renderDashboard(emp) {
+  showState("dashboard");
+  const PREFIXES = ["นางสาว","น.ส.","นาง","นาย","ด.ช.","ด.ญ."];
+  let displayName = emp.fullName || emp.name;
+  for (const p of PREFIXES) {
+    if (displayName.startsWith(p)) { displayName = displayName.slice(p.length).trim(); break; }
+  }
+  document.getElementById("dName").textContent = displayName;
+  document.getElementById("dId").textContent       = "รหัส: " + emp.id;
+  document.getElementById("dPosition").textContent = emp.position || "";
+
+  document.getElementById("dEmpType").textContent   = emp.empType   || "—";
+  document.getElementById("dDept").textContent      = emp.dept      || "—";
+  document.getElementById("dEducation").textContent = emp.education || "—";
+  document.getElementById("dStartDate").textContent = emp.startDate || "—";
+  document.getElementById("dBirthDate").textContent = emp.birthDate || "—";
+
+  // คำนวณอายุงาน
+  if (emp.startDate) {
+    const parts = String(emp.startDate).split("/");
+    if (parts.length === 3) {
+      let y = parseInt(parts[2], 10);
+      if (y > 2400) y -= 543;
+      const start = new Date(y, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+      const now2  = new Date();
+      let years   = now2.getFullYear() - start.getFullYear();
+      let months  = now2.getMonth() - start.getMonth();
+      if (months < 0) { years--; months += 12; }
+      document.getElementById("dWorkAge").textContent =
+        years > 0 ? `${years} ปี ${months} เดือน` : `${months} เดือน`;
+    }
+  } else {
+    document.getElementById("dWorkAge").textContent = "—";
+  }
+
+  const now = new Date();
+  document.getElementById("syncTime").textContent =
+    "ข้อมูล ณ " + now.toLocaleTimeString("th-TH", { hour:"2-digit", minute:"2-digit" });
+
+  const { balance, history } = computeBalance(emp.id);
+
+  [
+    { type:"ลากิจ",   daysId:"dPersonalDays", hoursId:"dPersonalHours" },
+    { type:"ลาป่วย",  daysId:"dSickDays",     hoursId:"dSickHours"     },
+    { type:"ลาอื่นๆ", daysId:"dOtherDays",    hoursId:"dOtherHours"    },
+  ].forEach(tc => {
+    const b = balance[tc.type];
+    document.getElementById(tc.daysId).innerHTML =
+      b ? `${b.days} <span>วัน</span>` : `— <span>วัน</span>`;
+    document.getElementById(tc.hoursId).textContent =
+      b && b.hours ? `(${b.hours} ชม.)` : "";
+  });
+
+  // คำนวณวันลากิจคงเหลือในปีบัญชีนี้
+  const QUOTA = 12;
+  const used  = calcPersonalLeaveUsedThisYear(emp.id);
+  const usedTotalMins    = toMins(used.days, used.hours, used.mins);
+  const quotaTotalMins   = QUOTA * 480;
+  const remainMins       = Math.max(quotaTotalMins - usedTotalMins, 0);
+  const remainDays       = Math.floor(remainMins / 480);
+  const remainHours      = Math.floor((remainMins % 480) / 60);
+
+  document.getElementById("dQuotaRemain").innerHTML =
+    `${remainDays} <span>วัน</span>${remainHours ? " " + remainHours + " <span>ชม.</span>" : ""}`;
+  document.getElementById("dQuotaUsed").textContent = "";
+
+  const list = document.getElementById("historyList");
+  if (!history.length) {
+    list.innerHTML = `<div class="empty-history"><div class="empty-icon">📭</div>ยังไม่มีประวัติการลา</div>`;
+    return;
+  }
+  list.innerHTML = history.map(h => {
+    const cfg = TYPE_CFG[h.leaveTypeNorm] || TYPE_CFG["ลาอื่นๆ"];
+    // แสดงวันที่ลาจริง (startDate-endDate) แทนวันที่บันทึก
+    const dateDisplay = h.startDate
+      ? (h.startDate === h.endDate ? h.startDate : `${h.startDate} – ${h.endDate}`)
+      : (h.date || "");
+    return `<div class="history-row">
+      <div class="history-dot ${cfg.dotClass}"></div>
+      <div class="history-info">
+        <div class="history-date">${dateDisplay}</div>
+        <div class="history-note">${h.days} วัน${h.hours ? " · " + h.hours + " ชม." : ""}</div>
+      </div>
+      <div class="history-badge ${cfg.badgeClass}">${h.leaveTypeNorm}</div>
+    </div>`;
+  }).join("");
+}
+
+function doLogout() {
+  document.getElementById("inputName").value = "";
+  document.getElementById("inputId").value   = "";
+  showState("stateLogin");
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("stateLogin").style.display !== "none") doLogin();
+});
+
+loadData();
+</script>
+</body>
+</html>

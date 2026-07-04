@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🌿 Ban-Khaosok Para Rubber</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream:#FDF8F3; --mint:#D6EFE3; --mint-mid:#A8D8C0; --mint-dark:#5BAF8A;
+    --sky:#D4EBF8; --sky-mid:#93C9E8; --blush:#FAE0E4; --blush-mid:#F5B8C4;
+    --butter:#FFF3C4; --text-dark:#2E3A34; --text-mid:#5A6E65; --text-soft:#97ADA4;
+    --white:#FFFFFF; --shadow-md:0 6px 28px rgba(91,175,138,0.14);
+    --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh;padding:20px 14px 60px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  .brand{text-align:center;margin-bottom:22px;}
+  .brand-icon{font-size:2rem;}
+  .brand-name{font-size:1rem;font-weight:600;color:var(--mint-dark);margin-top:2px;}
+  .brand-sub{font-size:0.78rem;color:var(--text-soft);}
+  .card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:24px 22px;margin-bottom:18px;animation:fadeUp .3s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .login-title{font-size:1.2rem;font-weight:700;margin-bottom:4px;}
+  .login-sub{font-size:0.82rem;color:var(--text-soft);margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-mid);margin-bottom:5px;}
+  .field input,.field select{width:100%;padding:11px 14px;border:1.5px solid #E2EDE9;border-radius:var(--radius-sm);font-family:'Sarabun',sans-serif;font-size:0.92rem;background:var(--cream);outline:none;}
+  .field input:focus,.field select:focus{border-color:var(--mint-dark);background:var(--white);}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+
+  /* Password toggle */
+  .pass-wrap{position:relative;}
+  .pass-wrap input{padding-right:42px;}
+  .pass-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--text-soft);padding:0;}
+
+  /* Autocomplete dropdown */
+  .autocomplete-wrap{position:relative;}
+  .autocomplete-list{position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--mint-dark);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;z-index:100;display:none;}
+  .autocomplete-list.show{display:block;}
+  .autocomplete-item{padding:9px 14px;cursor:pointer;font-size:0.88rem;}
+  .autocomplete-item:hover{background:var(--mint);}
+
+  .btn{padding:11px 20px;border:none;border-radius:var(--radius-sm);font-family:'Sarabun',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:.15s;}
+  .btn-primary{background:var(--mint-dark);color:white;}
+  .btn-primary:hover{background:#4a9e7a;}
+  .btn-secondary{background:var(--sky);color:#2d7aac;}
+  .btn-secondary:hover{background:var(--sky-mid);}
+  .btn-danger{background:var(--blush);color:#b03a47;}
+  .btn-danger:hover{background:var(--blush-mid);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:6px 12px;font-size:0.78rem;}
+  .login-error{background:var(--blush);color:#c0464f;border-radius:var(--radius-sm);padding:9px 13px;font-size:0.82rem;margin-top:12px;display:none;}
+  .login-error.show{display:block;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .topbar-name{font-size:0.95rem;font-weight:600;}
+  .topbar-name span{color:var(--mint-dark);}
+  .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .tab{padding:8px 16px;border-radius:20px;font-size:0.85rem;font-weight:600;cursor:pointer;background:var(--cream);color:var(--text-mid);border:1.5px solid #E8F2EE;}
+  .tab.active{background:var(--mint-dark);color:white;border-color:var(--mint-dark);}
+  .section-title{font-size:1rem;font-weight:700;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+  th{text-align:left;padding:8px 10px;background:var(--mint);color:var(--text-dark);font-weight:600;font-size:0.76rem;}
+  td{padding:9px 10px;border-bottom:1px solid #EEF6F2;}
+  tr:hover td{background:#FAFDFC;}
+  .table-wrap{overflow-x:auto;}
+  .action-btns{display:flex;gap:6px;}
+  .badge{font-size:0.72rem;font-weight:600;padding:3px 9px;border-radius:14px;white-space:nowrap;}
+  .badge-personal{background:var(--butter);color:#9A7E10;}
+  .badge-sick{background:var(--blush);color:#b03a47;}
+  .badge-other{background:var(--sky);color:#2d7aac;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text-dark);color:white;padding:12px 22px;border-radius:var(--radius-sm);font-size:0.85rem;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:999;display:none;max-width:90vw;text-align:center;line-height:1.5;}
+  .toast.show{display:block;animation:toastIn .25s ease;}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
+  .toast.error{background:#c0464f;}
+  .empty-msg{text-align:center;padding:24px;color:var(--text-soft);font-size:0.85rem;}
+  .calc-result{background:var(--mint);border-radius:var(--radius-sm);padding:12px 14px;font-size:0.85rem;margin-top:10px;display:none;}
+  .calc-result.show{display:block;}
+  .calc-result b{color:var(--mint-dark);}
+
+  /* Confirm password modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:998;padding:16px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:white;border-radius:var(--radius-lg);padding:22px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;}
+  .modal-title{font-size:1rem;font-weight:700;margin-bottom:6px;}
+  .modal-sub{font-size:0.82rem;color:var(--text-soft);margin-bottom:16px;}
+  .modal-error{background:var(--blush);color:#c0464f;border-radius:var(--radius-sm);padding:8px 12px;font-size:0.82rem;margin-bottom:10px;display:none;}
+  .modal-error.show{display:block;}
+
+  .spinner{width:36px;height:36px;border:3px solid var(--mint);border-top-color:var(--mint-dark);border-radius:50%;animation:spin .8s linear infinite;margin:30px auto;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-icon">🏢</div>
+    <div class="brand-name">Ban-Khaosok Para Rubber</div>
+    <div class="brand-sub">ระบบจัดการข้อมูลพนักงาน (สำหรับผู้ดูแล)</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <div class="login-title">เข้าสู่ระบบ Admin 🔐</div>
+    <div class="login-sub">กรุณากรอกชื่อผู้ใช้และรหัสผ่านของคุณ</div>
+    <div class="field">
+      <label>ชื่อผู้ใช้</label>
+      <input id="adminUser" type="text" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <div class="pass-wrap">
+        <input id="adminPass" type="password" autocomplete="off" />
+        <button class="pass-toggle" type="button" onclick="togglePass('adminPass',this)" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainApp" style="display:none">
+    <div class="topbar">
+      <div class="topbar-name">สวัสดี, <span id="adminNameDisplay"></span></div>
+      <button class="btn btn-secondary btn-sm" onclick="doAdminLogout()">ออกจากระบบ</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="addLeave" onclick="switchTab('addLeave')">📝 บันทึกวันลา</div>
+      <div class="tab" data-tab="history" onclick="switchTab('history')">📋 ประวัติการลา</div>
+      <div class="tab" data-tab="employees" onclick="switchTab('employees')">👥 ข้อมูลพนักงาน</div>
+    </div>
+
+    <!-- TAB: บันทึกวันลา -->
+    <div class="card tab-panel" id="panel-addLeave">
+      <div class="section-title" id="leaveFormTitle">บันทึกวันลาใหม่</div>
+      <div class="field">
+        <label>พนักงาน</label>
+        <div class="autocomplete-wrap">
+          <input id="leaveEmpInput" type="text" placeholder="พิมพ์ชื่อหรือรหัสพนักงาน..." autocomplete="off"
+            oninput="filterEmpList()" onfocus="filterEmpList()" onblur="setTimeout(()=>closeEmpList(),200)" />
+          <div class="autocomplete-list" id="empAutocompleteList"></div>
+        </div>
+        <input type="hidden" id="leaveEmpId" />
+        <input type="hidden" id="leaveEmpFullName" />
+      </div>
+      <div class="field">
+        <label>ประเภทการลา</label>
+        <select id="leaveType">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="ลากิจ">ลากิจ</option>
+          <option value="ลาป่วย">ลาป่วย</option>
+          <option value="ลาคลอด">ลาคลอด</option>
+          <option value="ลาอื่นๆ">ลาอื่นๆ</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>วันที่เริ่มลา</label>
+          <input id="leaveStartDate" type="date" oninput="syncThaiDate('leaveStartDate','leaveStartDateThai')" onchange="syncThaiDate('leaveStartDate','leaveStartDateThai')" />
+          <div style="font-size:0.75rem;color:var(--text-soft);margin-top:3px;" id="leaveStartDateThai"></div>
+        </div>
+        <div class="field">
+          <label>วันที่สิ้นสุดลา</label>
+          <input id="leaveEndDate" type="date" oninput="syncThaiDate('leaveEndDate','leaveEndDateThai')" onchange="syncThaiDate('leaveEndDate','leaveEndDateThai')" />
+          <div style="font-size:0.75rem;color:var(--text-soft);margin-top:3px;" id="leaveEndDateThai"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>ชั่วโมงเริ่ม (ไม่บังคับ)</label><input id="leaveStartHr" type="number" min="0" max="23" placeholder="08" /></div>
+        <div class="field"><label>นาทีเริ่ม</label><input id="leaveStartMin" type="number" min="0" max="59" placeholder="00" /></div>
+        <div class="field"><label>ชั่วโมงสิ้นสุด</label><input id="leaveEndHr" type="number" min="0" max="23" placeholder="17" /></div>
+        <div class="field"><label>นาทีสิ้นสุด</label><input id="leaveEndMin" type="number" min="0" max="59" placeholder="00" /></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button class="btn btn-secondary" onclick="calcLeavePreview()">🧮 คำนวณ</button>
+        <button class="btn btn-primary" onclick="submitLeave()">💾 บันทึก</button>
+        <button class="btn btn-danger" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">ยกเลิกแก้ไข</button>
+      </div>
+      <div class="calc-result" id="calcResult"></div>
+    </div>
+
+    <!-- TAB: ประวัติการลา -->
+    <div class="card tab-panel" id="panel-history" style="display:none">
+      <div class="section-title">ประวัติการลาทั้งหมด</div>
+      <div class="field"><input id="historySearch" type="text" placeholder="ค้นหาชื่อพนักงาน..." oninput="renderHistoryTable()" /></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>วันที่ลา</th><th>พนักงาน</th><th>ประเภท</th><th>ช่วงวันลา</th><th>จำนวนวันลา</th><th>บันทึกโดย</th><th>จัดการ</th></tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-msg" id="historyEmpty" style="display:none">ยังไม่มีประวัติการลา</div>
+    </div>
+
+    <!-- TAB: ข้อมูลพนักงาน -->
+    <div class="card tab-panel" id="panel-employees" style="display:none">
+      <div class="section-title">รายชื่อพนักงาน</div>
+      <button class="btn btn-primary btn-sm" style="margin-bottom:14px" onclick="openEmpModal()">➕ เพิ่มพนักงานใหม่</button>
+      <div class="field-row" style="margin-bottom:10px;">
+        <div class="field">
+          <input id="empSearch" type="text" placeholder="ค้นหาชื่อหรือรหัสพนักงาน..." oninput="renderEmpTable()" />
+        </div>
+        <div class="field">
+          <select id="empDeptFilter" onchange="renderEmpTable()">
+            <option value="">-- ทุกแผนก --</option>
+            <option>สำนักงานโรงงาน</option>
+            <option>สำนักงานใหญ่</option>
+            <option>ปั๊มบางจาก</option>
+            <option>ซ่อมบำรุง</option>
+            <option>รักษาความปลอดภัย</option>
+            <option>ผลิต</option>
+            <option>วัตถุดิบ</option>
+            <option>แลป</option>
+            <option>ส่งออก</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-soft); margin-bottom:8px;" id="empCount"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>แผนก</th><th>จัดการ</th></tr></thead>
+          <tbody id="empTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingScreen" style="text-align:center;padding:40px;display:none">
+    <div class="spinner"></div>
+    <div style="color:var(--text-soft);font-size:0.85rem;">กำลังโหลดข้อมูล...</div>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div class="modal-overlay" id="empModal">
+  <div class="modal-box">
+    <div class="section-title" id="empModalTitle">เพิ่มพนักงานใหม่</div>
+
+    <div style="font-size:0.78rem;font-weight:700;color:var(--mint-dark);margin:8px 0 6px;letter-spacing:0.05em;">👤 ข้อมูลส่วนตัว</div>
+    <div class="field"><label>ชื่อ-นามสกุล (พร้อมคำนำหน้า)</label><input id="empFormName" type="text" placeholder="เช่น นาย/นาง/น.ส. ชื่อ นามสกุล" /></div>
+    <div class="field"><label>เลขบัตรประชาชน</label><input id="empFormIdCard" type="text" /></div>
+    <div class="field"><label>วัน/เดือน/ปีเกิด (ค.ศ.)</label><input id="empFormBirth" type="date" /></div>
+
+    <div style="font-size:0.78rem;font-weight:700;color:var(--mint-dark);margin:12px 0 6px;letter-spacing:0.05em;">🏢 ข้อมูลการทำงาน</div>
+    <div class="field"><label>ประเภทพนักงาน</label><select id="empFormType"><option value="">-- เลือกประเภท --</option><option value="Monthly">Monthly</option><option value="Daily">Daily</option></select></div>
+    <div class="field"><label>แผนก</label><select id="empFormDept" onchange="onDeptChange()"><option value="">-- เลือกแผนก --</option><option>สำนักงานโรงงาน</option><option>สำนักงานใหญ่</option><option>ปั๊มบางจาก</option><option>ซ่อมบำรุง</option><option>รักษาความปลอดภัย</option><option>ผลิต</option><option>วัตถุดิบ</option><option>แลป</option><option>ส่งออก</option></select></div>
+    <div class="field"><label>ตำแหน่ง</label><input id="empFormPosition" type="text" /></div>
+    <div class="field"><label>วุฒิการศึกษา</label><select id="empFormEducation"><option value="">-- เลือกวุฒิ --</option><option>ม.3 หรือต่ำกว่า</option><option>ม.6 / ปวช.</option><option>ปวส.</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option></select></div>
+    <div class="field"><label>วันเข้างาน (ค.ศ.)</label><input id="empFormStartDate" type="date" /></div>
+    <div class="field"><label>เงินเดือน/ค่าแรง (บาท)</label><input id="empFormSalary" type="number" placeholder="0" /></div>
+
+    <div style="font-size:0.78rem;font-weight:700;color:var(--mint-dark);margin:12px 0 6px;letter-spacing:0.05em;">🔑 รหัสพนักงาน</div>
+    <div class="field"><label>รหัสพนักงาน <span id="empIdStatus" style="color:var(--mint-dark);font-size:0.78rem;"></span></label>
+      <input id="empFormId" type="text" placeholder="เลือกแผนกก่อนเพื่อสร้างรหัสอัตโนมัติ" readonly style="background:#F8FBF9;color:var(--text-mid);cursor:not-allowed;" />
+      <div style="font-size:0.75rem;color:var(--text-soft);margin-top:4px;">รหัสจะถูกสร้างอัตโนมัติเมื่อเลือกแผนก</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="saveEmployee()">บันทึก</button>
+      <button class="btn btn-secondary" onclick="closeEmpModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Employee Modal -->
+<div class="modal-overlay" id="viewEmpModal">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="width:60px;height:60px;background:var(--mint-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 10px;">👤</div>
+      <div style="font-size:1.1rem;font-weight:700;" id="viewEmpName"></div>
+      <div style="font-size:0.82rem;color:var(--mint-dark);font-weight:600;" id="viewEmpId"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="background:var(--sky);border-radius:var(--radius-md);padding:12px 14px;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-soft);letter-spacing:0.06em;margin-bottom:8px;">👤 ข้อมูลส่วนตัว</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">บัตรประชาชน</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpIdCard">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">วันเกิด</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpBirth">—</div></div>
+        </div>
+      </div>
+
+      <div style="background:var(--mint);border-radius:var(--radius-md);padding:12px 14px;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-soft);letter-spacing:0.06em;margin-bottom:8px;">🏢 ข้อมูลการทำงาน</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">ประเภท</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpType">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">แผนก</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpDept">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">ตำแหน่ง</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpPosition">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">วุฒิการศึกษา</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpEducation">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">วันเข้างาน</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpStartDate">—</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-soft);">อายุงาน</div><div style="font-size:0.85rem;font-weight:600;" id="viewEmpWorkAge">—</div></div>
+        </div>
+      </div>
+
+      <div style="background:var(--butter);border-radius:var(--radius-md);padding:12px 14px;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-soft);letter-spacing:0.06em;margin-bottom:8px;">💰 เงินเดือน/ค่าแรง</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--text-dark);" id="viewEmpSalary">—</div>
+        <div style="font-size:0.75rem;color:var(--text-soft);">บาท</div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary btn-block" style="margin-top:14px;" onclick="document.getElementById('viewEmpModal').classList.remove('show')">ปิด</button>
+  </div>
+</div>
+
+<!-- Confirm Password Modal (for edit/delete) -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-title">🔐 ยืนยันตัวตน</div>
+    <div class="modal-sub" id="confirmModalDesc">กรุณากรอกรหัสผ่านของคุณเพื่อดำเนินการต่อ</div>
+    <div class="modal-error" id="confirmModalError"></div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <div class="pass-wrap">
+        <input id="confirmPass" type="password" placeholder="กรอกรหัสผ่านของคุณ" autocomplete="off"
+          onkeydown="if(event.key==='Enter') confirmAction()" />
+        <button class="pass-toggle" type="button" onclick="togglePass('confirmPass',this)" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-danger" onclick="confirmAction()">ยืนยัน</button>
+      <button class="btn btn-secondary" onclick="closeConfirmModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxtbMRFNTLQNixVwCtIyxn73Xx1CQtkk04j72tT10v9QVGRnv5H1Vb5VFHXw-1ryl0/exec";
+
+let ADMIN_NAME = "";
+let ADMIN_PASS = ""; // เก็บ password ไว้ verify ตอนแก้ไข/ลบ
+let DB_EMPLOYEES = [];
+let DB_RECORDS   = [];
+let editingRowIndex = null;
+let editingEmpId    = null;
+
+// pending action สำหรับ confirm modal
+let pendingAction   = null;
+
+// ============================================================
+//  Utility
+// ============================================================
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (inp.type === "password") { inp.type = "text"; btn.textContent = "🙈"; }
+  else                         { inp.type = "password"; btn.textContent = "👁"; }
+}
+
+function jsonpCall(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+    const timer = setTimeout(() => { delete window[cbName]; reject(new Error("หมดเวลาเชื่อมต่อ")); }, 15000);
+    window[cbName] = function(data) {
+      clearTimeout(timer); delete window[cbName];
+      const s = document.getElementById("jsonp_" + cbName); if (s) s.remove();
+      resolve(data);
+    };
+    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
+    const script = document.createElement("script");
+    script.id  = "jsonp_" + cbName;
+    script.src = API_URL + "?" + query;
+    script.onerror = () => { clearTimeout(timer); delete window[cbName]; reject(new Error("เชื่อมต่อไม่ได้")); };
+    document.head.appendChild(script);
+  });
+}
+
+function showToast(msg, isError, duration) {
+  const t = document.getElementById("toast");
+  t.innerHTML = msg;
+  t.className = "toast show" + (isError ? " error" : "");
+  setTimeout(() => { t.className = "toast"; }, duration || 4000);
+}
+
+// ============================================================
+//  Login / Logout
+// ============================================================
+async function doAdminLogin() {
+  const username = document.getElementById("adminUser").value.trim();
+  const password = document.getElementById("adminPass").value.trim();
+  const errBox   = document.getElementById("loginError");
+  errBox.classList.remove("show");
+  if (!username || !password) { errBox.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน"; errBox.classList.add("show"); return; }
+  try {
+    const res = await jsonpCall({ action: "adminLogin", username, password });
+    if (!res.success) { errBox.textContent = res.message || "เข้าสู่ระบบไม่สำเร็จ"; errBox.classList.add("show"); return; }
+    ADMIN_NAME = res.name;
+    ADMIN_PASS = password; // เก็บไว้สำหรับ verify ตอนแก้ไข/ลบ
+    document.getElementById("adminNameDisplay").textContent = ADMIN_NAME;
+    document.getElementById("loginCard").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+    await loadAllData();
+  } catch (err) { errBox.textContent = "เชื่อมต่อไม่สำเร็จ: " + err.message; errBox.classList.add("show"); }
+}
+
+function doAdminLogout() {
+  ADMIN_NAME = ""; ADMIN_PASS = "";
+  document.getElementById("adminUser").value = "";
+  document.getElementById("adminPass").value = "";
+  document.getElementById("mainApp").style.display = "none";
+  document.getElementById("loginCard").style.display = "block";
+}
+
+// ============================================================
+//  Confirm Password Modal
+// ============================================================
+function openConfirmModal(desc, action) {
+  pendingAction = action;
+  document.getElementById("confirmModalDesc").textContent = desc;
+  document.getElementById("confirmPass").value = "";
+  document.getElementById("confirmModalError").classList.remove("show");
+  document.getElementById("confirmModal").classList.add("show");
+  setTimeout(() => document.getElementById("confirmPass").focus(), 100);
+}
+
+function closeConfirmModal() {
+  pendingAction = null;
+  document.getElementById("confirmModal").classList.remove("show");
+}
+
+async function confirmAction() {
+  const pass    = document.getElementById("confirmPass").value.trim();
+  const errBox  = document.getElementById("confirmModalError");
+  errBox.classList.remove("show");
+  if (!pass) { errBox.textContent = "กรุณากรอกรหัสผ่าน"; errBox.classList.add("show"); return; }
+
+  // verify รหัสผ่านกับ server
+  try {
+    const res = await jsonpCall({ action: "adminLogin", username: ADMIN_NAME, password: pass });
+    if (!res.success) { errBox.textContent = "รหัสผ่านไม่ถูกต้อง"; errBox.classList.add("show"); return; }
+  } catch(err) { errBox.textContent = "เชื่อมต่อไม่ได้"; errBox.classList.add("show"); return; }
+
+  closeConfirmModal();
+  if (pendingAction) pendingAction();
+}
+
+// ============================================================
+//  Load data
+// ============================================================
+async function loadAllData() {
+  document.getElementById("loadingScreen").style.display = "block";
+  try {
+    const data = await jsonpCall({});
+    DB_EMPLOYEES = data.employees || [];
+    DB_RECORDS   = data.records   || [];
+    renderHistoryTable();
+    renderEmpTable();
+  } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ: " + err.message, true); }
+  document.getElementById("loadingScreen").style.display = "none";
+}
+
+// ============================================================
+//  Tabs
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+  document.querySelectorAll(".tab-panel").forEach(p => p.style.display = "none");
+  document.getElementById("panel-" + tab).style.display = "block";
+}
+
+// ============================================================
+//  Autocomplete พนักงาน
+// ============================================================
+function filterEmpList() {
+  const q    = document.getElementById("leaveEmpInput").value.trim().toLowerCase();
+  const list = document.getElementById("empAutocompleteList");
+  const filtered = q
+    ? DB_EMPLOYEES.filter(e => e.fullName.toLowerCase().includes(q) || e.id.toLowerCase().includes(q))
+    : DB_EMPLOYEES;
+
+  if (!filtered.length) { list.classList.remove("show"); return; }
+  list.innerHTML = filtered.slice(0, 20).map(e =>
+    `<div class="autocomplete-item" onmousedown="selectEmp('${e.id}','${e.fullName.replace(/'/g,"&#39;")}')">
+      ${e.fullName} <span style="color:var(--text-soft)">(${e.id})</span>
+    </div>`
+  ).join("");
+  list.classList.add("show");
+}
+
+function selectEmp(id, fullName) {
+  document.getElementById("leaveEmpInput").value     = fullName + " (" + id + ")";
+  document.getElementById("leaveEmpId").value        = id;
+  document.getElementById("leaveEmpFullName").value  = fullName;
+  document.getElementById("empAutocompleteList").classList.remove("show");
+}
+
+function closeEmpList() {
+  document.getElementById("empAutocompleteList").classList.remove("show");
+}
+
+// ============================================================
+//  Leave: คำนวณ & บันทึก
+// ============================================================
+// แปลงวันที่จาก input[type=date] (ค.ศ.) → dd/mm/พ.ศ. สำหรับส่ง API
+function dateInputToThai(val) {
+  if (!val) return "";
+  const [y, m, d] = val.split("-");
+  return `${d}/${m}/${parseInt(y) + 543}`;
+}
+
+// แสดงวันที่ไทยใต้ช่อง date picker
+function syncThaiDate(inputId, labelId) {
+  const val = document.getElementById(inputId).value;
+  const label = document.getElementById(labelId);
+  if (!val) { label.textContent = ""; return; }
+  const [y, m, d] = val.split("-");
+  const thaiYear = parseInt(y) + 543;
+  const months = ["","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  label.textContent = `${parseInt(d)} ${months[parseInt(m)]} ${thaiYear}`;
+}
+
+// แปลงวันที่ Thai string dd/mm/yyyy → input[type=date] value yyyy-mm-dd (ค.ศ.)
+function thaiToDateInput(thaiStr) {
+  if (!thaiStr) return "";
+  const parts = thaiStr.split("/");
+  if (parts.length !== 3) return "";
+  let y = parseInt(parts[2]);
+  if (y > 2400) y -= 543;
+  return `${y}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+}
+
+function buildLeavePayload() {
+  return {
+    empName:   document.getElementById("leaveEmpFullName").value,
+    empId:     document.getElementById("leaveEmpId").value,
+    leaveType: document.getElementById("leaveType").value,
+    startDate: dateInputToThai(document.getElementById("leaveStartDate").value),
+    endDate:   dateInputToThai(document.getElementById("leaveEndDate").value),
+    startHr:   document.getElementById("leaveStartHr").value,
+    startMin:  document.getElementById("leaveStartMin").value,
+    endHr:     document.getElementById("leaveEndHr").value,
+    endMin:    document.getElementById("leaveEndMin").value,
+    editRow:   editingRowIndex,
+    adminName: ADMIN_NAME
+  };
+}
+
+async function calcLeavePreview() {
+  const payload = buildLeavePayload();
+  if (!payload.empName)   { showToast("กรุณาเลือกพนักงาน", true); return; }
+  if (!payload.leaveType) { showToast("กรุณาเลือกประเภทการลา", true); return; }
+  if (!payload.startDate || !payload.endDate) { showToast("กรุณากรอกวันที่", true); return; }
+  try {
+    const res = await jsonpCall({ action: "calcLeave", payload: JSON.stringify(payload) });
+    if (!res.success) { showToast(res.message, true); return; }
+    const box = document.getElementById("calcResult");
+    box.innerHTML = `วันลาครั้งนี้: <b>${res.thisLeave.days} วัน ${res.thisLeave.hours} ชม. ${res.thisLeave.mins} นาที</b><br>วันลาสะสมหลังรวม: <b>${res.accumLeave.days} วัน ${res.accumLeave.hours} ชม. ${res.accumLeave.mins} นาที</b>`;
+    box.classList.add("show");
+  } catch (err) { showToast("คำนวณไม่สำเร็จ: " + err.message, true); }
+}
+
+async function submitLeave() {
+  const payload = buildLeavePayload();
+  if (!payload.empName)   { showToast("กรุณาเลือกพนักงาน", true); return; }
+  if (!payload.leaveType) { showToast("กรุณาเลือกประเภทการลา", true); return; }
+  if (!payload.startDate || !payload.endDate) { showToast("กรุณากรอกวันที่", true); return; }
+
+  // ถ้าเป็นการแก้ไข ต้องยืนยันรหัสผ่านก่อน
+  if (editingRowIndex) {
+    openConfirmModal("ยืนยันการแก้ไขรายการลาของ " + payload.empName, async () => {
+      await _doSaveLeave(payload);
+    });
+    return;
+  }
+  await _doSaveLeave(payload);
+}
+
+async function _doSaveLeave(payload) {
+  try {
+    const res = await jsonpCall({ action: "saveLeave", payload: JSON.stringify(payload) });
+    if (!res.success) { showToast(res.message, true); return; }
+    showToast(res.message);
+    resetLeaveForm();
+    await loadAllData();
+  } catch (err) { showToast("บันทึกไม่สำเร็จ: " + err.message, true); }
+}
+
+function resetLeaveForm() {
+  document.getElementById("leaveEmpInput").value    = "";
+  document.getElementById("leaveEmpId").value       = "";
+  document.getElementById("leaveEmpFullName").value = "";
+  document.getElementById("leaveType").value        = "";
+  document.getElementById("leaveStartDate").value   = "";
+  document.getElementById("leaveEndDate").value     = "";
+  document.getElementById("leaveStartDateThai").textContent = "";
+  document.getElementById("leaveEndDateThai").textContent   = "";
+  document.getElementById("leaveStartHr").value     = "";
+  document.getElementById("leaveStartMin").value    = "";
+  document.getElementById("leaveEndHr").value       = "";
+  document.getElementById("leaveEndMin").value      = "";
+  document.getElementById("calcResult").classList.remove("show");
+  editingRowIndex = null;
+  document.getElementById("leaveFormTitle").textContent = "บันทึกวันลาใหม่";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+function cancelEdit() { resetLeaveForm(); }
+
+function editLeaveRow(rowIndex) {
+  openConfirmModal("ยืนยันการแก้ไขรายการลา", () => {
+    const rec = DB_RECORDS.find(r => r.rowIndex === rowIndex);
+    if (!rec) return;
+    const emp = DB_EMPLOYEES.find(e => e.id === rec.empId);
+    document.getElementById("leaveEmpInput").value    = (emp ? emp.fullName : rec.empName) + " (" + rec.empId + ")";
+    document.getElementById("leaveEmpId").value       = rec.empId;
+    document.getElementById("leaveEmpFullName").value = emp ? emp.fullName : rec.empName;
+    document.getElementById("leaveType").value        = rec.leaveType;
+    document.getElementById("leaveStartDate").value   = thaiToDateInput(rec.startDate);
+    document.getElementById("leaveEndDate").value     = thaiToDateInput(rec.endDate);
+    syncThaiDate("leaveStartDate", "leaveStartDateThai");
+    syncThaiDate("leaveEndDate",   "leaveEndDateThai");
+    if (rec.startTime && rec.startTime !== "-") {
+      const [h, m] = rec.startTime.split(":");
+      document.getElementById("leaveStartHr").value  = h;
+      document.getElementById("leaveStartMin").value = m;
+    }
+    if (rec.endTime && rec.endTime !== "-") {
+      const [h, m] = rec.endTime.split(":");
+      document.getElementById("leaveEndHr").value  = h;
+      document.getElementById("leaveEndMin").value = m;
+    }
+    editingRowIndex = rowIndex;
+    document.getElementById("leaveFormTitle").textContent = "แก้ไขรายการลา";
+    document.getElementById("cancelEditBtn").style.display = "inline-block";
+    switchTab("addLeave");
+  });
+}
+
+function deleteLeaveRow(rowIndex) {
+  const rec = DB_RECORDS.find(r => r.rowIndex === rowIndex);
+  const name = rec ? rec.empName : "";
+  openConfirmModal(`ยืนยันการลบรายการลาของ ${name}`, async () => {
+    try {
+      const res = await jsonpCall({ action: "deleteLeave", rowIndex: String(rowIndex) });
+      if (!res.success) { showToast(res.message, true); return; }
+      showToast(res.message);
+      await loadAllData();
+    } catch (err) { showToast("ลบไม่สำเร็จ: " + err.message, true); }
+  });
+}
+
+// ============================================================
+//  History Table
+// ============================================================
+const TYPE_BADGE = { "ลากิจ":"badge-personal", "ลาป่วย":"badge-sick" };
+function badgeClassFor(type) { return TYPE_BADGE[type] || "badge-other"; }
+
+function renderHistoryTable() {
+  const search  = document.getElementById("historySearch").value.trim().toLowerCase();
+  const tbody   = document.getElementById("historyTableBody");
+  const emptyMsg = document.getElementById("historyEmpty");
+  let rows = [...DB_RECORDS].sort((a, b) => b.rowIndex - a.rowIndex);
+  if (search) rows = rows.filter(r => r.empName.toLowerCase().includes(search));
+  if (!rows.length) { tbody.innerHTML = ""; emptyMsg.style.display = "block"; return; }
+  emptyMsg.style.display = "none";
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.startDate}${r.endDate && r.endDate !== r.startDate ? " – " + r.endDate : ""}</td>
+      <td>${r.empName}</td>
+      <td><span class="badge ${badgeClassFor(r.leaveType)}">${r.leaveType}</span></td>
+      <td>${r.startDate} – ${r.endDate}</td>
+      <td>${r.days} วัน${r.hours ? " " + r.hours + " ชม." : ""}</td>
+      <td>${r.recordedBy || "-"}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-secondary btn-sm" onclick="editLeaveRow(${r.rowIndex})">แก้ไข</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteLeaveRow(${r.rowIndex})">ลบ</button>
+      </div></td>
+    </tr>`).join("");
+}
+
+// ============================================================
+//  Employee Table
+// ============================================================
+function renderEmpTable() {
+  const search    = document.getElementById("empSearch").value.trim().toLowerCase();
+  const deptFilter = document.getElementById("empDeptFilter").value;
+  const tbody     = document.getElementById("empTableBody");
+
+  let list = [...DB_EMPLOYEES];
+  if (search)     list = list.filter(e => e.fullName.toLowerCase().includes(search) || e.id.toLowerCase().includes(search));
+  if (deptFilter) list = list.filter(e => (e.dept || "") === deptFilter);
+
+  // เรียงตามรหัส
+  list.sort((a, b) => a.id.localeCompare(b.id));
+
+  document.getElementById("empCount").textContent =
+    `พบ ${list.length} คน${deptFilter ? " (แผนก" + deptFilter + ")" : ""}`;
+
+  tbody.innerHTML = list.map(e => `
+    <tr>
+      <td>${e.id}</td>
+      <td>${e.fullName}</td>
+      <td>${e.position || "-"}</td>
+      <td>${e.dept || "-"}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm" style="background:var(--mint);color:var(--text-dark);" onclick="viewEmployee('${e.id}')">👁 ดู</button>
+        <button class="btn btn-secondary btn-sm" onclick="openEmpModal('${e.id}')">แก้ไข</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteEmployee('${e.id}','${e.fullName.replace(/'/g,"&#39;")}')">ลบ</button>
+      </div></td>
+    </tr>`).join("");
+}
+
+// ============================================================
+//  Employee Modal
+// ============================================================
+async function onDeptChange() {
+  if (editingEmpId) return; // ถ้าเป็นการแก้ไข ไม่ต้องสร้างรหัสใหม่
+  const dept = document.getElementById("empFormDept").value;
+  if (!dept) {
+    document.getElementById("empFormId").value = "";
+    document.getElementById("empIdStatus").textContent = "";
+    return;
+  }
+  document.getElementById("empIdStatus").textContent = "กำลังสร้างรหัส...";
+  try {
+    const res = await jsonpCall({ action: "getNextEmpId", dept });
+    if (!res.success) {
+      document.getElementById("empIdStatus").textContent = res.message;
+      return;
+    }
+    document.getElementById("empFormId").value = res.nextId;
+    document.getElementById("empIdStatus").textContent = "✅ " + res.nextId;
+  } catch (err) {
+    document.getElementById("empIdStatus").textContent = "เชื่อมต่อไม่ได้";
+  }
+}
+
+function viewEmployee(empId) {
+  const e = DB_EMPLOYEES.find(x => x.id === empId);
+  if (!e) return;
+
+  document.getElementById("viewEmpName").textContent     = e.fullName || e.name;
+  document.getElementById("viewEmpId").textContent       = "รหัส: " + e.id;
+  document.getElementById("viewEmpIdCard").textContent   = e.idCard    || "—";
+  document.getElementById("viewEmpBirth").textContent    = e.birthDate || "—";
+  document.getElementById("viewEmpType").textContent     = e.empType   || "—";
+  document.getElementById("viewEmpDept").textContent     = e.dept      || "—";
+  document.getElementById("viewEmpPosition").textContent = e.position  || "—";
+  document.getElementById("viewEmpEducation").textContent= e.education || "—";
+  document.getElementById("viewEmpStartDate").textContent= e.startDate || "—";
+  document.getElementById("viewEmpSalary").textContent   = e.salary ? Number(e.salary).toLocaleString("th-TH") : "—";
+
+  // คำนวณอายุงาน
+  if (e.startDate) {
+    const parts = String(e.startDate).split("/");
+    if (parts.length === 3) {
+      let y = parseInt(parts[2]); if (y > 2400) y -= 543;
+      const start = new Date(y, parseInt(parts[1])-1, parseInt(parts[0]));
+      const now2  = new Date();
+      let years = now2.getFullYear() - start.getFullYear();
+      let months = now2.getMonth() - start.getMonth();
+      if (months < 0) { years--; months += 12; }
+      document.getElementById("viewEmpWorkAge").textContent = years > 0 ? `${years} ปี ${months} เดือน` : `${months} เดือน`;
+    }
+  } else {
+    document.getElementById("viewEmpWorkAge").textContent = "—";
+  }
+
+  document.getElementById("viewEmpModal").classList.add("show");
+}
+
+function openEmpModal(empId) {
+  editingEmpId = empId || null;
+  document.getElementById("empModalTitle").textContent = empId ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่";
+  ["empFormName","empFormIdCard","empFormPosition"].forEach(id => document.getElementById(id).value = "");
+  ["empFormType","empFormDept","empFormEducation"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("empFormBirth").value     = "";
+  document.getElementById("empFormStartDate").value = "";
+  document.getElementById("empFormSalary").value    = "";
+  document.getElementById("empFormId").value = "";
+  document.getElementById("empFormId").readOnly = !empId;
+  document.getElementById("empFormId").style.cursor = empId ? "text" : "not-allowed";
+  document.getElementById("empFormId").style.background = empId ? "var(--cream)" : "#F8FBF9";
+  document.getElementById("empIdStatus").textContent = "";
+
+  if (empId) {
+    const e = DB_EMPLOYEES.find(x => x.id === empId);
+    if (e) {
+      document.getElementById("empFormId").value       = e.id;
+      document.getElementById("empFormName").value     = e.fullName;
+      document.getElementById("empFormPosition").value = e.position || "";
+    }
+  }
+  document.getElementById("empModal").classList.add("show");
+}
+
+function closeEmpModal() { document.getElementById("empModal").classList.remove("show"); }
+
+async function saveEmployee() {
+  const payload = {
+    id:        document.getElementById("empFormId").value.trim(),
+    name:      document.getElementById("empFormName").value.trim(),
+    idCard:    document.getElementById("empFormIdCard").value.trim(),
+    birthDate: document.getElementById("empFormBirth").value ? dateInputToThai(document.getElementById("empFormBirth").value) : "",
+    empType:   document.getElementById("empFormType").value.trim(),
+    dept:      document.getElementById("empFormDept").value.trim(),
+    position:  document.getElementById("empFormPosition").value.trim(),
+    education: document.getElementById("empFormEducation").value.trim(),
+    startDate: document.getElementById("empFormStartDate").value ? dateInputToThai(document.getElementById("empFormStartDate").value) : "",
+    salary:    document.getElementById("empFormSalary").value.trim()
+  };
+  if (!payload.id || !payload.name) { showToast("กรุณากรอกรหัสและชื่อพนักงาน", true); return; }
+
+  if (editingEmpId) {
+    // แก้ไข → ต้องยืนยันรหัสผ่าน
+    closeEmpModal();
+    openConfirmModal(`ยืนยันการแก้ไขข้อมูลของ ${payload.name}`, async () => {
+      await _doSaveEmployee(payload);
+    });
+    return;
+  }
+  await _doSaveEmployee(payload);
+}
+
+async function _doSaveEmployee(payload) {
+  try {
+    const action = editingEmpId ? "updateEmployee" : "addEmployee";
+    const res = await jsonpCall({ action, payload: JSON.stringify(payload) });
+    if (!res.success) { showToast(res.message, true); return; }
+
+    // ถ้าเพิ่มใหม่ → แสดงสรุปข้อมูล
+    if (!editingEmpId) {
+      showToast(
+        `✅ เพิ่มพนักงานใหม่เรียบร้อยแล้ว<br>` +
+        `<small>รหัส: ${payload.id} | ชื่อ: ${payload.name}<br>` +
+        `ประเภท: ${payload.empType || "-"} | แผนก: ${payload.dept || "-"}<br>` +
+        `ตำแหน่ง: ${payload.position || "-"} | วุฒิ: ${payload.education || "-"}</small>`,
+        false, 6000
+      );
+    } else {
+      showToast(res.message);
+    }
+    closeEmpModal();
+    await loadAllData();
+  } catch (err) { showToast("บันทึกไม่สำเร็จ: " + err.message, true); }
+}
+
+function confirmDeleteEmployee(empId, empName) {
+  openConfirmModal(`ยืนยันการลบพนักงาน ${empName} (${empId})`, async () => {
+    try {
+      const res = await jsonpCall({ action: "deleteEmployee", empId });
+      if (!res.success) { showToast(res.message, true); return; }
+      showToast(res.message);
+      await loadAllData();
+    } catch (err) { showToast("ลบไม่สำเร็จ: " + err.message, true); }
+  });
+}
+
+// Enter key on login
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("loginCard").style.display !== "none") doAdminLogin();
+});
+</script>
+</body>
+</html>
