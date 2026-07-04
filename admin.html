@@ -127,13 +127,14 @@
       <button class="btn btn-secondary btn-sm" onclick="doAdminLogout()">ออกจากระบบ</button>
     </div>
     <div class="tabs">
-      <div class="tab active" data-tab="addLeave" onclick="switchTab('addLeave')">📝 บันทึกวันลา</div>
+      <div class="tab active" data-tab="employees" onclick="switchTab('employees')">👥 ข้อมูลพนักงาน</div>
+      <div class="tab" data-tab="addLeave" onclick="switchTab('addLeave')">📝 บันทึกวันลา</div>
       <div class="tab" data-tab="history" onclick="switchTab('history')">📋 ประวัติการลา</div>
-      <div class="tab" data-tab="employees" onclick="switchTab('employees')">👥 ข้อมูลพนักงาน</div>
+      <div class="tab" data-tab="payroll" onclick="switchTab('payroll')">💰 เงินเดือน</div>
     </div>
 
     <!-- TAB: บันทึกวันลา -->
-    <div class="card tab-panel" id="panel-addLeave">
+    <div class="card tab-panel" id="panel-addLeave" style="display:none">
       <div class="section-title" id="leaveFormTitle">บันทึกวันลาใหม่</div>
       <div class="field">
         <label>พนักงาน</label>
@@ -197,7 +198,7 @@
     </div>
 
     <!-- TAB: ข้อมูลพนักงาน -->
-    <div class="card tab-panel" id="panel-employees" style="display:none">
+    <div class="card tab-panel" id="panel-employees">
       <div class="section-title">รายชื่อพนักงาน</div>
       <button class="btn btn-primary btn-sm" style="margin-bottom:14px" onclick="openEmpModal()">➕ เพิ่มพนักงานใหม่</button>
       <div class="field-row" style="margin-bottom:10px;">
@@ -227,6 +228,70 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- TAB: เงินเดือน -->
+  <div class="card tab-panel" id="panel-payroll" style="display:none">
+    <div class="section-title">💰 คำนวณเงินเดือน</div>
+
+    <!-- เลือกงวด -->
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field">
+        <label>งวดเดือน/ปี (เช่น 07/2569)</label>
+        <input id="payrollPeriod" type="text" placeholder="เช่น 07/2569" />
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;gap:8px;">
+        <button class="btn btn-secondary" onclick="calcPayroll()">🧮 คำนวณ</button>
+        <button class="btn btn-primary" onclick="closePayroll()">✅ ปิดงวด</button>
+      </div>
+    </div>
+
+    <!-- สรุปยอด -->
+    <div id="payrollSummary" style="display:none;margin-bottom:14px;">
+      <div class="balance-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="balance-card" style="background:var(--mint);">
+          <div class="balance-icon">👥</div>
+          <div class="balance-type">พนักงานทั้งหมด</div>
+          <div class="balance-days" id="payrollEmpCount">0 <span>คน</span></div>
+        </div>
+        <div class="balance-card" style="background:var(--butter);">
+          <div class="balance-icon">💵</div>
+          <div class="balance-type">รวมรายได้</div>
+          <div class="balance-days" style="font-size:1.2rem;" id="payrollTotalIncome">0 <span>บาท</span></div>
+        </div>
+        <div class="balance-card" style="background:#EDE4F5;">
+          <div class="balance-icon">💰</div>
+          <div class="balance-type">รวมยอดสุทธิ</div>
+          <div class="balance-days" style="font-size:1.2rem;" id="payrollTotalNet">0 <span>บาท</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ค้นหารายบุคคล -->
+    <div class="field" id="payrollSearchWrap" style="display:none">
+      <input id="payrollSearch" type="text" placeholder="ค้นหาชื่อหรือรหัสพนักงาน..." oninput="renderPayrollTable()" />
+    </div>
+
+    <!-- ตาราง -->
+    <div class="table-wrap" id="payrollTableWrap" style="display:none">
+      <table id="payrollTable">
+        <thead>
+          <tr>
+            <th>รหัส</th><th>ชื่อ</th><th>เงินเดือน</th>
+            <th>ค่าตำแหน่ง</th><th>ค่าครองชีพ</th><th>OT</th>
+            <th>รวมรายได้</th><th>รวมหัก</th>
+            <th style="background:var(--mint-dark);color:white;">ยอดสุทธิ</th>
+          </tr>
+        </thead>
+        <tbody id="payrollTableBody"></tbody>
+        <tfoot id="payrollTableFoot"></tfoot>
+      </table>
+    </div>
+
+    <div class="empty-msg" id="payrollEmpty" style="display:none">กรอกงวดแล้วกด "คำนวณ" เพื่อดูข้อมูลครับ</div>
+
+    <!-- ปุ่มพิมพ์ -->
+    <button class="btn btn-secondary btn-block" id="payrollPrintBtn" style="display:none;margin-top:14px;" onclick="printPayroll()">🖨️ พิมพ์ตารางเงินเดือน</button>
   </div>
 
   <div id="loadingScreen" style="text-align:center;padding:40px;display:none">
@@ -450,7 +515,124 @@ async function loadAllData() {
     renderHistoryTable();
     renderEmpTable();
   } catch (err) { showToast("โหลดข้อมูลไม่สำเร็จ: " + err.message, true); }
+  // ============================================================
+//  PAYROLL
+// ============================================================
+let PAYROLL_DATA = [];
+
+async function calcPayroll() {
+  const period = document.getElementById("payrollPeriod").value.trim();
+  if (!period) { showToast("กรุณากรอกงวดเดือน/ปี", true); return; }
+
+  document.getElementById("loadingScreen").style.display = "block";
+  try {
+    const res = await jsonpCall({ action: "calcPayroll", period });
+    if (!res.success || !res.data) { showToast("คำนวณไม่สำเร็จ", true); return; }
+    PAYROLL_DATA = res.data;
+    renderPayrollTable();
+    renderPayrollSummary();
+    document.getElementById("payrollSummary").style.display    = "block";
+    document.getElementById("payrollSearchWrap").style.display = "block";
+    document.getElementById("payrollTableWrap").style.display  = "block";
+    document.getElementById("payrollPrintBtn").style.display   = "block";
+    document.getElementById("payrollEmpty").style.display      = "none";
+    showToast(`คำนวณเงินเดือนงวด ${period} เสร็จแล้ว (${res.data.length} คน)`);
+  } catch (err) {
+    showToast("เชื่อมต่อไม่ได้: " + err.message, true);
+  }
   document.getElementById("loadingScreen").style.display = "none";
+}
+
+function renderPayrollSummary() {
+  const totalIncome = PAYROLL_DATA.reduce((s, r) => s + r.totalIncome, 0);
+  const totalNet    = PAYROLL_DATA.reduce((s, r) => s + r.netPay, 0);
+  document.getElementById("payrollEmpCount").innerHTML   = `${PAYROLL_DATA.length} <span>คน</span>`;
+  document.getElementById("payrollTotalIncome").innerHTML = `${totalIncome.toLocaleString("th-TH")} <span>บาท</span>`;
+  document.getElementById("payrollTotalNet").innerHTML    = `${totalNet.toLocaleString("th-TH")} <span>บาท</span>`;
+}
+
+function renderPayrollTable() {
+  const search = document.getElementById("payrollSearch") ? document.getElementById("payrollSearch").value.trim().toLowerCase() : "";
+  let rows = [...PAYROLL_DATA];
+  if (search) rows = rows.filter(r => r.empName.toLowerCase().includes(search) || r.empId.toLowerCase().includes(search));
+
+  const tbody = document.getElementById("payrollTableBody");
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td>${r.empId}</td>
+      <td>${r.empName}</td>
+      <td>${r.salary.toLocaleString("th-TH")}</td>
+      <td>${r.position.toLocaleString("th-TH")}</td>
+      <td>${r.living.toLocaleString("th-TH")}</td>
+      <td>${r.otTotal.toLocaleString("th-TH")}</td>
+      <td>${r.totalIncome.toLocaleString("th-TH")}</td>
+      <td>${r.totalDeduct.toLocaleString("th-TH")}</td>
+      <td style="font-weight:700;color:var(--mint-dark);">${r.netPay.toLocaleString("th-TH")}</td>
+    </tr>`).join("");
+
+  // แถวรวม
+  const totalIncome  = rows.reduce((s, r) => s + r.totalIncome, 0);
+  const totalDeduct  = rows.reduce((s, r) => s + r.totalDeduct, 0);
+  const totalNet     = rows.reduce((s, r) => s + r.netPay, 0);
+  document.getElementById("payrollTableFoot").innerHTML = `
+    <tr style="background:var(--mint);font-weight:700;">
+      <td colspan="6">รวมทั้งหมด</td>
+      <td>${totalIncome.toLocaleString("th-TH")}</td>
+      <td>${totalDeduct.toLocaleString("th-TH")}</td>
+      <td style="color:var(--mint-dark);">${totalNet.toLocaleString("th-TH")}</td>
+    </tr>`;
+}
+
+async function closePayroll() {
+  const period = document.getElementById("payrollPeriod").value.trim();
+  if (!period)            { showToast("กรุณากรอกงวดเดือน/ปี", true); return; }
+  if (!PAYROLL_DATA.length) { showToast("กรุณากดคำนวณก่อน", true); return; }
+
+  openConfirmModal(`ยืนยันการปิดงวดเงินเดือน ${period}`, async () => {
+    try {
+      const res = await jsonpCall({ action: "closePayroll", period, adminName: ADMIN_NAME });
+      if (!res.success) { showToast(res.message, true); return; }
+      showToast(res.message);
+    } catch (err) {
+      showToast("ปิดงวดไม่สำเร็จ: " + err.message, true);
+    }
+  });
+}
+
+function printPayroll() {
+  const period = document.getElementById("payrollPeriod").value.trim();
+  const table  = document.getElementById("payrollTable").outerHTML;
+  const win    = window.open("", "_blank");
+  win.document.write(`
+    <html><head>
+    <title>เงินเดือน ${period}</title>
+    <style>
+      body { font-family: 'Sarabun', sans-serif; padding: 20px; font-size: 13px; }
+      h2 { text-align: center; margin-bottom: 4px; }
+      h3 { text-align: center; color: #5a6e65; margin-bottom: 16px; }
+      table { width: 100%; border-collapse: collapse; }
+      th { background: #D6EFE3; padding: 7px 8px; text-align: left; font-size: 12px; }
+      td { padding: 7px 8px; border-bottom: 1px solid #eee; }
+      tfoot tr td { background: #D6EFE3; font-weight: bold; }
+      @media print { button { display: none; } }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+    </head><body>
+    <h2>สหกรณ์กองทุนสวนยางบ้านเขาชก จำกัด</h2>
+    <h3>ตารางเงินเดือน งวด ${period}</h3>
+    ${table}
+    <div style="margin-top:40px;display:flex;justify-content:space-between;padding:0 40px;">
+      <div style="text-align:center;">ผู้จัดทำ<br><br>_________________</div>
+      <div style="text-align:center;">ผู้ตรวจสอบ<br><br>_________________</div>
+      <div style="text-align:center;">ผู้อนุมัติ<br><br>_________________</div>
+    </div>
+    <script>window.print();<\/script>
+    </body></html>
+  `);
+  win.document.close();
+}
+
+document.getElementById("loadingScreen").style.display = "none";
 }
 
 // ============================================================
