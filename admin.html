@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🌿 Ban-Khaosok Para Rubber</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#5BAF8A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="BKS Admin" />
 <style>
   :root {
     --cream:#FDF8F3; --mint:#D6EFE3; --mint-mid:#A8D8C0; --mint-dark:#5BAF8A;
@@ -705,6 +709,12 @@ function thaiToDateInput(thaiStr) {
   return `${y}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
 }
 
+function formatIdCard(id) {
+  const digits = id.replace(/\D/g, "");
+  if (digits.length !== 13) return id;
+  return `${digits[0]}-${digits.slice(1,5)}-${digits.slice(5,10)}-${digits.slice(10,12)}-${digits[12]}`;
+}
+
 function buildLeavePayload() {
   return {
     empName:   document.getElementById("leaveEmpFullName").value,
@@ -976,7 +986,7 @@ async function saveEmployee() {
   const payload = {
     id:        document.getElementById("empFormId").value.trim(),
     name:      document.getElementById("empFormName").value.trim(),
-    idCard:    document.getElementById("empFormIdCard").value.trim(),
+    idCard:    formatIdCard(document.getElementById("empFormIdCard").value.trim()),
     birthDate: document.getElementById("empFormBirth").value ? dateInputToThai(document.getElementById("empFormBirth").value) : "",
     empType:   document.getElementById("empFormType").value.trim(),
     dept:      document.getElementById("empFormDept").value.trim(),
