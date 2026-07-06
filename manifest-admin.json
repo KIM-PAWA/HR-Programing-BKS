@@ -1,0 +1,23 @@
+{
+  "name": "BKS Admin",
+  "short_name": "BKS Admin",
+  "description": "ระบบจัดการข้อมูลพนักงาน Ban-Khaosok Para Rubber",
+  "start_url": "/HR-Programing-BKS/admin.html",
+  "scope": "/HR-Programing-BKS/",
+  "display": "standalone",
+  "background_color": "#FDF8F3",
+  "theme_color": "#5BAF8A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Office%20building/3D/office_building_3d.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Office%20building/3D/office_building_3d.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
